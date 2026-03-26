@@ -167,9 +167,11 @@ async function ask(msg) {
   if (!r.ok) throw new Error('HTTP ' + r.status);
   const txt = await r.text();
   // JSONブロックを抽出
-  const m = txt.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error('レスポンス: ' + txt.slice(0,120));
-  return JSON.parse(m[0]);
+const obj = JSON.parse(txt);
+const text = obj.content[0].text;
+const m = text.match(/\{[\s\S]*\}/);
+if (!m) throw new Error('JSON抽出失敗: ' + text.slice(0,100));
+return JSON.parse(m[0]);
 }
 
 function sw(p) {
