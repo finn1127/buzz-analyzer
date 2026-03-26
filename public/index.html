@@ -1012,13 +1012,18 @@ ${currentPlatform === 'instagram' ? 'Instagramは画像・リール向けのタ�
     }
 
     const text = data.content.map(i => i.text || "").join("");
-    const clean = text.replace(/```json|```/g, "").trim();
-
+    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;">JSON抽出失敗</p></div>`;
+      refreshBtn.disabled = false;
+      return;
+    }
     let parsed;
     try {
-      parsed = JSON.parse(clean);
+      parsed = JSON.parse(jsonMatch[0]);
     } catch(e) {
-      container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;word-break:break-all;">JSON失敗: ${clean.slice(0,300)}</p></div>`;
+      container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;">JSON失敗: ${e.message}</p></div>`;
       refreshBtn.disabled = false;
       return;
     }
@@ -1150,7 +1155,7 @@ ${currentPlatform === 'instagram' ? 'Instagramはリール・フィード向け�
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
+        max_tokens: 8000,
         messages: [{ role: "user", content: prompt }]
       })
     });
@@ -1164,13 +1169,18 @@ ${currentPlatform === 'instagram' ? 'Instagramはリール・フィード向け�
     }
 
     const text = data.content.map(i => i.text || "").join("");
-    const clean = text.replace(/```json|```/g, "").trim();
-
+    const clean = text.replace(/```json/g, "").replace(/```/g, "").trim();
+    const jsonMatch = clean.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      errorBox.textContent = "JSON抽出失敗: レスポンス形式エラー";
+      errorBox.classList.add('active');
+      return;
+    }
     let parsed;
     try {
-      parsed = JSON.parse(clean);
+      parsed = JSON.parse(jsonMatch[0]);
     } catch(e) {
-      errorBox.textContent = `JSON解析エラー: ${clean.slice(0, 150)}`;
+      errorBox.textContent = `JSON失敗: ${e.message}`;
       errorBox.classList.add('active');
       return;
     }
