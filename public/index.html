@@ -4,178 +4,135 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Buzz Analyzer</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --red: #ff2d55;
-  --pink: #ff6b8a;
-  --dark: #0a0a0f;
-  --card: #12121a;
-  --border: #1e1e2e;
-  --text: #e8e8f0;
-  --muted: #6b6b85;
-  --accent: #00f5d4;
-  --ig: #c13584;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:var(--dark); color:var(--text); font-family:'Noto Sans JP',sans-serif; min-height:100vh; }
-body::before {
-  content:''; position:fixed; top:-50%; left:-50%; width:200%; height:200%;
-  background: radial-gradient(ellipse at 20% 20%, rgba(255,45,85,0.06) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 80%, rgba(0,245,212,0.04) 0%, transparent 50%);
-  pointer-events:none; z-index:0;
-}
-.container { max-width:900px; margin:0 auto; padding:0 20px; position:relative; z-index:1; }
+:root{--red:#ff2d55;--pink:#ff6b8a;--dark:#0a0a0f;--card:#12121a;--border:#1e1e2e;--text:#e8e8f0;--muted:#6b6b85;--accent:#00f5d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--dark);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;padding-bottom:60px;}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px;}
 
-header { padding:40px 0 30px; text-align:center; border-bottom:1px solid var(--border); margin-bottom:32px; }
-.logo { display:inline-flex; align-items:center; gap:12px; margin-bottom:8px; }
-.logo-icon { width:40px; height:40px; background:var(--red); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; }
-h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,6vw,46px); letter-spacing:3px; background:linear-gradient(135deg,#fff 30%,var(--red) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.tagline { color:var(--muted); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-top:6px; }
+header{padding:36px 0 24px;text-align:center;border-bottom:1px solid var(--border);margin-bottom:28px;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(22px,5vw,42px);letter-spacing:3px;background:linear-gradient(135deg,#fff 30%,var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{color:var(--muted);font-size:11px;letter-spacing:2px;margin-top:4px;}
 
-.platform-tabs { display:flex; gap:8px; justify-content:center; margin-top:20px; }
-.platform-tab { display:flex; align-items:center; gap:8px; padding:10px 28px; border-radius:30px; font-family:'Bebas Neue',sans-serif; font-size:16px; letter-spacing:2px; cursor:pointer; border:1px solid var(--border); background:transparent; color:var(--muted); transition:all 0.2s; }
-.platform-tab:hover { color:var(--text); border-color:#444; }
-.platform-tab.active-tiktok { background:rgba(255,45,85,0.15); border-color:var(--red); color:#fff; }
-.platform-tab.active-instagram { background:rgba(193,53,132,0.15); border-color:var(--ig); color:#fff; }
+.tabs{display:flex;gap:8px;justify-content:center;margin-top:18px;}
+.tab{padding:9px 24px;border-radius:30px;font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:2px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all .2s;}
+.tab.tk{border-color:var(--red);background:rgba(255,45,85,.15);color:#fff;}
+.tab.ig{border-color:#c13584;background:rgba(193,53,132,.15);color:#fff;}
 
-.today-section { margin-bottom:32px; }
-.today-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
-.today-title { font-family:'Bebas Neue',sans-serif; font-size:15px; letter-spacing:3px; color:var(--muted); display:flex; align-items:center; gap:8px; }
-.live-dot { width:7px; height:7px; background:var(--red); border-radius:50%; animation:livePulse 1.4s ease-in-out infinite; }
-@keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
-.refresh-btn { background:transparent; border:1px solid var(--border); color:var(--muted); padding:5px 12px; border-radius:20px; font-size:11px; font-family:'Noto Sans JP',sans-serif; cursor:pointer; transition:all 0.2s; }
-.refresh-btn:hover:not(:disabled) { border-color:var(--red); color:var(--red); }
-.refresh-btn:disabled { opacity:0.4; cursor:not-allowed; }
-.cache-info { font-size:11px; color:var(--muted); margin-bottom:10px; letter-spacing:1px; }
+.buzz-section{margin-bottom:24px;}
+.buzz-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.buzz-title{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:3px;color:var(--muted);display:flex;align-items:center;gap:8px;}
+.dot{width:6px;height:6px;background:var(--red);border-radius:50%;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.rbtn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:4px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+.rbtn:hover:not(:disabled){border-color:var(--red);color:var(--red);}
+.rbtn:disabled{opacity:.4;cursor:not-allowed;}
 
-.genre-rows { display:flex; flex-direction:column; gap:10px; }
-.genre-row { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 18px; animation:fadeUp 0.4s ease forwards; opacity:0; transform:translateY(10px); }
-.genre-row:nth-child(1){animation-delay:0.05s} .genre-row:nth-child(2){animation-delay:0.1s}
-.genre-row:nth-child(3){animation-delay:0.15s} .genre-row:nth-child(4){animation-delay:0.2s}
-@keyframes fadeUp { to{opacity:1;transform:translateY(0)} }
-.genre-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
-.genre-tags { display:flex; flex-wrap:wrap; gap:8px; }
-.genre-tag { display:inline-flex; align-items:center; gap:5px; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.18s; border:1px solid transparent; }
-.genre-tag.hot { background:rgba(255,45,85,0.13); border-color:rgba(255,45,85,0.35); color:#ff6b8a; }
-.genre-tag.warm { background:rgba(255,165,0,0.1); border-color:rgba(255,165,0,0.28); color:#ffb347; }
-.genre-tag.cool { background:rgba(0,245,212,0.08); border-color:rgba(0,245,212,0.22); color:var(--accent); }
-.genre-tag:hover { transform:scale(1.06); filter:brightness(1.25); }
-.tag-rank { font-size:9px; opacity:0.65; font-weight:400; }
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;}
+.genre-row{margin-bottom:14px;}
+.genre-row:last-child{margin-bottom:0;}
+.glabel{font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:8px;}
+.tags{display:flex;flex-wrap:wrap;gap:7px;}
+.tag{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;border:1px solid transparent;transition:all .18s;}
+.tag:hover{transform:scale(1.06);}
+.tag.hot{background:rgba(255,45,85,.13);border-color:rgba(255,45,85,.35);color:#ff6b8a;}
+.tag.warm{background:rgba(255,165,0,.1);border-color:rgba(255,165,0,.28);color:#ffb347;}
+.tag.cool{background:rgba(0,245,212,.08);border-color:rgba(0,245,212,.22);color:var(--accent);}
+.tag-rank{font-size:9px;opacity:.6;font-weight:400;margin-left:3px;}
 
-.today-loading { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:28px; text-align:center; }
-.loading-bars { display:flex; align-items:flex-end; justify-content:center; gap:6px; height:30px; margin-bottom:10px; }
-.bar { width:8px; border-radius:4px; background:var(--red); animation:barAnim 1s ease-in-out infinite; }
-.bar:nth-child(1){animation-delay:0s} .bar:nth-child(2){animation-delay:0.15s} .bar:nth-child(3){animation-delay:0.3s}
-.bar:nth-child(4){animation-delay:0.45s} .bar:nth-child(5){animation-delay:0.6s}
-@keyframes barAnim { 0%,100%{height:8px;opacity:0.4} 50%{height:28px;opacity:1} }
-.today-loading p { font-size:12px; color:var(--muted); }
+.search-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:24px;}
+.row{display:flex;gap:10px;flex-wrap:wrap;}
+.fg{flex:1;min-width:160px;}
+.fg label{display:block;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:7px;text-transform:uppercase;}
+.fg input,.fg select{width:100%;background:var(--dark);border:1px solid var(--border);border-radius:9px;padding:11px 14px;color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus{border-color:var(--red);}
+.fg select option{background:var(--dark);}
+.abtn{align-self:flex-end;background:var(--red);color:#fff;border:none;border-radius:9px;padding:11px 26px;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.abtn:hover:not(:disabled){background:var(--pink);transform:translateY(-2px);}
+.abtn:disabled{opacity:.5;cursor:not-allowed;}
 
-.search-panel { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:28px; }
-.search-row { display:flex; gap:12px; flex-wrap:wrap; }
-.input-group { flex:1; min-width:180px; }
-.input-group label { display:block; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-.input-group input, .input-group select { width:100%; background:var(--dark); border:1px solid var(--border); border-radius:10px; padding:12px 16px; color:var(--text); font-family:'Noto Sans JP',sans-serif; font-size:14px; outline:none; transition:border-color 0.2s; }
-.input-group input:focus, .input-group select:focus { border-color:var(--red); }
-.input-group select option { background:var(--dark); }
-.search-btn { align-self:flex-end; background:var(--red); color:white; border:none; border-radius:10px; padding:12px 28px; font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-.search-btn:hover:not(:disabled) { background:var(--pink); transform:translateY(-2px); box-shadow:0 8px 24px rgba(255,45,85,0.35); }
-.search-btn:disabled { opacity:0.5; cursor:not-allowed; }
+.err{display:none;background:rgba(255,45,85,.1);border:1px solid rgba(255,45,85,.3);border-radius:10px;padding:14px;color:var(--pink);margin-bottom:16px;font-size:12px;line-height:1.6;}
+.err.on{display:block;}
 
-.error-box { display:none; background:rgba(255,45,85,0.1); border:1px solid rgba(255,45,85,0.3); border-radius:12px; padding:16px; color:var(--pink); margin-bottom:20px; font-size:13px; word-break:break-all; }
-.error-box.active { display:block; }
+.spin{display:none;text-align:center;padding:48px 0;}
+.spin.on{display:block;}
+.bars{display:flex;align-items:flex-end;justify-content:center;gap:5px;height:36px;margin-bottom:12px;}
+.b{width:7px;border-radius:4px;background:var(--red);animation:ba 1s ease-in-out infinite;}
+.b:nth-child(1){animation-delay:0s}.b:nth-child(2){animation-delay:.15s}.b:nth-child(3){animation-delay:.3s}.b:nth-child(4){animation-delay:.45s}.b:nth-child(5){animation-delay:.6s}
+@keyframes ba{0%,100%{height:6px;opacity:.4}50%{height:32px;opacity:1}}
+.spin p{color:var(--muted);font-size:12px;letter-spacing:1px;}
 
-.main-loading { display:none; text-align:center; padding:60px 20px; }
-.main-loading.active { display:block; }
-.main-loading .loading-bars { height:50px; margin-bottom:16px; }
-.main-loading .bar { background:var(--red); }
-.main-loading p { color:var(--muted); font-size:13px; letter-spacing:1px; }
+.res{display:none;}
+.res.on{display:block;}
+.res-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.res-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--accent);}
+.kbadge{background:rgba(255,45,85,.15);border:1px solid rgba(255,45,85,.3);color:var(--red);padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700;}
 
-.results { display:none; }
-.results.active { display:block; }
-.results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
-.results-title { font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:2px; color:var(--accent); }
-.keyword-badge { background:rgba(255,45,85,0.15); border:1px solid rgba(255,45,85,0.3); color:var(--red); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; }
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:18px;}
+.sbox{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;text-align:center;}
+.sval{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--red);}
+.slabel{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
 
-.stats-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
-.stat-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px; text-align:center; }
-.stat-value { font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--red); letter-spacing:1px; }
-.stat-label { font-size:11px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+.sec{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:16px;}
+.sec-title{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.sec-title::before{content:'';display:inline-block;width:18px;height:2px;background:var(--red);}
 
-.section { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:24px; margin-bottom:20px; animation:fadeUp 0.4s ease forwards; opacity:0; }
-.section:nth-child(2){animation-delay:0.05s} .section:nth-child(3){animation-delay:0.1s}
-.section:nth-child(4){animation-delay:0.15s} .section:nth-child(5){animation-delay:0.2s}
-.section-title { font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--muted); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
-.section-title::before { content:''; display:inline-block; width:20px; height:2px; background:var(--red); }
+.htags{display:flex;flex-wrap:wrap;gap:8px;}
+.htag{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:22px;font-size:13px;font-weight:700;border:1px solid transparent;}
+.htag.hot{background:rgba(255,45,85,.15);border-color:rgba(255,45,85,.4);color:#ff6b8a;}
+.htag.warm{background:rgba(255,165,0,.12);border-color:rgba(255,165,0,.3);color:#ffb347;}
+.htag.cool{background:rgba(0,245,212,.1);border-color:rgba(0,245,212,.25);color:var(--accent);}
+.hcount{font-size:10px;opacity:.7;font-weight:400;}
 
-.hashtag-grid { display:flex; flex-wrap:wrap; gap:10px; }
-.hashtag { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:24px; font-size:13px; font-weight:700; border:1px solid transparent; }
-.hashtag.hot { background:rgba(255,45,85,0.15); border-color:rgba(255,45,85,0.4); color:#ff6b8a; }
-.hashtag.warm { background:rgba(255,165,0,0.12); border-color:rgba(255,165,0,0.3); color:#ffb347; }
-.hashtag.cool { background:rgba(0,245,212,0.1); border-color:rgba(0,245,212,0.25); color:var(--accent); }
-.hashtag-count { font-size:10px; opacity:0.7; font-weight:400; }
+.ideas{display:flex;flex-direction:column;gap:10px;}
+.idea{display:flex;gap:12px;padding:12px;background:rgba(255,255,255,.03);border-radius:9px;border-left:3px solid var(--red);}
+.inum{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--red);line-height:1;min-width:26px;}
+.itxt{font-size:13px;line-height:1.6;}
+.ihook{font-size:11px;color:var(--muted);margin-top:3px;}
 
-.idea-list { display:flex; flex-direction:column; gap:12px; }
-.idea-item { display:flex; gap:14px; align-items:flex-start; padding:14px; background:rgba(255,255,255,0.03); border-radius:10px; border-left:3px solid var(--red); }
-.idea-num { font-family:'Bebas Neue',sans-serif; font-size:24px; color:var(--red); line-height:1; min-width:28px; }
-.idea-text { font-size:14px; line-height:1.6; }
-.idea-hook { font-size:12px; color:var(--muted); margin-top:4px; }
+.affs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.aff{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:11px;padding:14px;}
+.aicon{font-size:22px;margin-bottom:7px;}
+.aname{font-weight:700;font-size:13px;margin-bottom:3px;}
+.adesc{font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.5;}
+.aearning{font-size:11px;color:var(--accent);font-weight:700;}
 
-.affili-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
-.affili-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:16px; transition:all 0.2s; }
-.affili-card:hover { border-color:rgba(255,45,85,0.4); }
-.affili-icon { font-size:24px; margin-bottom:8px; }
-.affili-name { font-weight:700; font-size:14px; margin-bottom:4px; }
-.affili-desc { font-size:12px; color:var(--muted); margin-bottom:8px; line-height:1.5; }
-.affili-earning { font-size:11px; color:var(--accent); font-weight:700; }
+.slabel2{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--red);margin:14px 0 6px;}
+.slabel2:first-child{margin-top:0;}
+.sbox2{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:9px;padding:14px;font-size:13px;line-height:1.8;white-space:pre-wrap;}
 
-.script-label { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--red); margin-bottom:8px; margin-top:16px; }
-.script-label:first-child { margin-top:0; }
-.script-box { background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:10px; padding:16px; font-size:13px; line-height:1.8; white-space:pre-wrap; }
-
-@media(max-width:600px) {
-  .search-row { flex-direction:column; }
-  .search-btn { width:100%; }
-  .affili-grid { grid-template-columns:1fr 1fr; }
-  .stats-row { grid-template-columns:1fr 1fr; }
-}
+.info{font-size:11px;color:var(--muted);margin-bottom:8px;}
+@media(max-width:580px){.row{flex-direction:column;}.abtn{width:100%;}.affs{grid-template-columns:1fr 1fr;}.stats{grid-template-columns:1fr 1fr;}}
 </style>
 </head>
 <body>
-<div class="container">
+<div class="wrap">
   <header>
-    <div class="logo">
-      <div class="logo-icon" id="logoIcon">🔥</div>
-      <h1 id="mainTitle">TikTok Buzz Analyzer</h1>
-    </div>
-    <p class="tagline">AI-Powered Trend Research · Powered by Claude</p>
-    <div class="platform-tabs">
-      <button class="platform-tab active-tiktok" id="tabTiktok" onclick="switchPlatform('tiktok')">🎵 TikTok</button>
-      <button class="platform-tab" id="tabInstagram" onclick="switchPlatform('instagram')">📸 Instagram</button>
+    <h1 id="ttl">🔥 TikTok Buzz Analyzer</h1>
+    <p class="sub">AI-POWERED TREND RESEARCH · POWERED BY CLAUDE</p>
+    <div class="tabs">
+      <button class="tab tk" id="tTk" onclick="sw('tiktok')">🎵 TikTok</button>
+      <button class="tab" id="tIg" onclick="sw('instagram')">📸 Instagram</button>
     </div>
   </header>
 
-  <div class="today-section">
-    <div class="today-header">
-      <div class="today-title"><div class="live-dot"></div>TODAY'S BUZZ TAGS</div>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadTodayTags(true)">↻ 更新</button>
+  <div class="buzz-section">
+    <div class="buzz-head">
+      <div class="buzz-title"><div class="dot"></div>TODAY'S BUZZ TAGS</div>
+      <button class="rbtn" id="rbtn" onclick="loadTags(true)">↻ 更新</button>
     </div>
-    <div class="cache-info" id="cacheInfo"></div>
-    <div id="todayTags">
-      <div class="today-loading">
-        <div class="loading-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-        <p>バズタグを取得中...</p>
-      </div>
-    </div>
+    <div class="info" id="cinfo"></div>
+    <div id="tagArea"><div class="card"><p style="color:var(--muted);font-size:12px;text-align:center;padding:20px;">読み込み中...</p></div></div>
   </div>
 
-  <div class="search-panel">
-    <div class="search-row">
-      <div class="input-group">
+  <div class="search-card">
+    <div class="row">
+      <div class="fg">
         <label>キーワード</label>
-        <input type="text" id="keyword" placeholder="例: ダイエット、美容、副業..." />
+        <input type="text" id="kw" placeholder="例: ダイエット、美容、副業...">
       </div>
-      <div class="input-group" style="max-width:160px">
+      <div class="fg" style="max-width:150px">
         <label>ジャンル</label>
         <select id="genre">
           <option value="general">すべて</option>
@@ -186,192 +143,163 @@ h1 { font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,6vw,46px); letter
           <option value="fashion">ファッション</option>
         </select>
       </div>
-      <button class="search-btn" id="searchBtn" onclick="analyze()">ANALYZE</button>
+      <button class="abtn" id="abtn" onclick="analyze()">ANALYZE</button>
     </div>
   </div>
 
-  <div class="error-box" id="errorBox"></div>
-  <div class="main-loading" id="mainLoading">
-    <div class="loading-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
-    <p id="loadingText">AIがトレンドを分析中...</p>
-  </div>
-  <div class="results" id="results"></div>
+  <div class="err" id="err"></div>
+  <div class="spin" id="spin"><div class="bars"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><p id="spintxt">分析中...</p></div>
+  <div class="res" id="res"></div>
 </div>
 
 <script>
-let currentPlatform = 'tiktok';
-const memCache = { tiktok: { data:null, ts:0 }, instagram: { data:null, ts:0 } };
-const CACHE_TTL = 60 * 60 * 1000;
+let plat = 'tiktok';
+const cache = { tiktok:{d:null,t:0}, instagram:{d:null,t:0} };
+const TTL = 3600000;
 
-async function callClaude(userMessage) {
-  const res = await fetch('/api/claude', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      messages: [{ role: 'user', content: userMessage }]
-    })
+// APIを呼び出してJSONを返す
+async function ask(msg) {
+  const r = await fetch('/api/claude', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ messages:[{role:'user',content:msg}] })
   });
-  const rawText = await res.text();
-  let data;
-  try {
-    data = JSON.parse(rawText);
-  } catch(e) {
-    throw new Error('サーバー応答エラー: ' + rawText.slice(0, 100));
-  }
-  if (!data.content) throw new Error('APIエラー: ' + JSON.stringify(data).slice(0, 100));
-  const text = data.content.map(i => i.text || '').join('');
-  const match = text.match(/\{[\s\S]*\}/);
-  if (!match) throw new Error('JSONが見つかりません: ' + text.slice(0, 100));
-  try {
-    return JSON.parse(match[0]);
-  } catch(e) {
-    throw new Error('JSON解析失敗: ' + e.message);
-  }
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  const txt = await r.text();
+  // JSONブロックを抽出
+  const m = txt.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('レスポンス: ' + txt.slice(0,120));
+  return JSON.parse(m[0]);
 }
 
-function switchPlatform(platform) {
-  if (currentPlatform === platform) return;
-  currentPlatform = platform;
-  const isTiktok = platform === 'tiktok';
-  document.getElementById('tabTiktok').className = 'platform-tab' + (isTiktok ? ' active-tiktok' : '');
-  document.getElementById('tabInstagram').className = 'platform-tab' + (!isTiktok ? ' active-instagram' : '');
-  document.getElementById('mainTitle').textContent = isTiktok ? 'TikTok Buzz Analyzer' : 'Instagram Buzz Analyzer';
-  document.getElementById('logoIcon').textContent = isTiktok ? '🔥' : '📸';
-  loadTodayTags();
+function sw(p) {
+  if (plat===p) return;
+  plat = p;
+  const tk = p==='tiktok';
+  document.getElementById('tTk').className = 'tab'+(tk?' tk':'');
+  document.getElementById('tIg').className = 'tab'+(!tk?' ig':'');
+  document.getElementById('ttl').textContent = tk ? '🔥 TikTok Buzz Analyzer' : '📸 Instagram Buzz Analyzer';
+  loadTags();
 }
 
-async function loadTodayTags(forceRefresh = false) {
-  const container = document.getElementById('todayTags');
-  const refreshBtn = document.getElementById('refreshBtn');
-  const cache = memCache[currentPlatform];
-  const pName = currentPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
+async function loadTags(force=false) {
+  const el = document.getElementById('tagArea');
+  const rb = document.getElementById('rbtn');
+  const ci = document.getElementById('cinfo');
+  const c = cache[plat];
+  const pn = plat==='tiktok'?'TikTok':'Instagram';
 
-  if (!forceRefresh && cache.data && (Date.now() - cache.ts < CACHE_TTL)) {
-    renderTodayTags(cache.data);
-    const rem = Math.round((CACHE_TTL - (Date.now() - cache.ts)) / 60000);
-    document.getElementById('cacheInfo').textContent = `キャッシュ（あと約${rem}分）`;
+  if (!force && c.d && Date.now()-c.t < TTL) {
+    renderTags(c.d);
+    ci.textContent = 'キャッシュ（あと約'+Math.round((TTL-(Date.now()-c.t))/60000)+'分）';
     return;
   }
 
-  refreshBtn.disabled = true;
-  document.getElementById('cacheInfo').textContent = '';
-  container.innerHTML = `<div class="today-loading"><div class="loading-bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div><p>${pName}のバズタグ取得中...</p></div>`;
-
-  const prompt = `日本の${pName}で今バズっているハッシュタグをジャンル別に返せ。必ずJSONのみ返すこと。前置き不要。
-{"genres":[{"label":"🔥 ダイエット・美容","tags":[{"tag":"#ダイエット","level":"hot","rank":"1位"},{"tag":"#スキンケア","level":"hot","rank":"2位"},{"tag":"#痩せたい","level":"warm","rank":"3位"},{"tag":"#ビフォーアフター","level":"warm","rank":"4位"},{"tag":"#糖質制限","level":"cool","rank":"5位"}]},{"label":"💰 副業・お金","tags":[{"tag":"#副業","level":"hot","rank":"1位"},{"tag":"#在宅ワーク","level":"hot","rank":"2位"},{"tag":"#アフィリエイト","level":"warm","rank":"3位"},{"tag":"#節約","level":"warm","rank":"4位"},{"tag":"#投資初心者","level":"cool","rank":"5位"}]},{"label":"🍜 グルメ・料理","tags":[{"tag":"#レシピ","level":"hot","rank":"1位"},{"tag":"#時短レシピ","level":"hot","rank":"2位"},{"tag":"#節約飯","level":"warm","rank":"3位"},{"tag":"#おうちごはん","level":"warm","rank":"4位"},{"tag":"#映えごはん","level":"cool","rank":"5位"}]},{"label":"📱 ガジェット・ファッション","tags":[{"tag":"#ガジェット","level":"hot","rank":"1位"},{"tag":"#プチプラコーデ","level":"hot","rank":"2位"},{"tag":"#購入品紹介","level":"warm","rank":"3位"},{"tag":"#OOTD","level":"warm","rank":"4位"},{"tag":"#ユニクロコーデ","level":"cool","rank":"5位"}]}]}
-上記の形式で、今の${pName}の実際のバズタグに書き換えて返せ。`;
+  rb.disabled = true;
+  ci.textContent = '';
+  el.innerHTML = '<div class="card"><div class="bars" style="justify-content:center;margin:16px 0"><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div><div class="b"></div></div><p style="color:var(--muted);font-size:12px;text-align:center;padding-bottom:16px">'+pn+'のバズタグ取得中...</p></div>';
 
   try {
-    const parsed = await callClaude(prompt);
-    cache.data = parsed;
-    cache.ts = Date.now();
-    document.getElementById('cacheInfo').textContent = '取得完了 · 1時間キャッシュ';
-    renderTodayTags(parsed);
-  } catch(err) {
-    container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:12px;">${err.message}</p></div>`;
+    const d = await ask(
+      '日本の'+pn+'で今バズっているハッシュタグをジャンル別にJSONで返せ。JSONのみ。前置き不要。\n'+
+      '{"genres":['+
+        '{"label":"🔥 ダイエット・美容","tags":[{"tag":"#ダイエット","level":"hot","rank":"1位"},{"tag":"#スキンケア","level":"hot","rank":"2位"},{"tag":"#痩せたい","level":"warm","rank":"3位"},{"tag":"#美容","level":"warm","rank":"4位"},{"tag":"#糖質制限","level":"cool","rank":"5位"}]},'+
+        '{"label":"💰 副業・お金","tags":[{"tag":"#副業","level":"hot","rank":"1位"},{"tag":"#在宅ワーク","level":"hot","rank":"2位"},{"tag":"#節約","level":"warm","rank":"3位"},{"tag":"#投資","level":"warm","rank":"4位"},{"tag":"#アフィリエイト","level":"cool","rank":"5位"}]},'+
+        '{"label":"🍜 グルメ・料理","tags":[{"tag":"#レシピ","level":"hot","rank":"1位"},{"tag":"#時短レシピ","level":"hot","rank":"2位"},{"tag":"#節約飯","level":"warm","rank":"3位"},{"tag":"#料理","level":"warm","rank":"4位"},{"tag":"#おうちごはん","level":"cool","rank":"5位"}]},'+
+        '{"label":"📱 ガジェット・ファッション","tags":[{"tag":"#ガジェット","level":"hot","rank":"1位"},{"tag":"#コーデ","level":"hot","rank":"2位"},{"tag":"#購入品","level":"warm","rank":"3位"},{"tag":"#OOTD","level":"warm","rank":"4位"},{"tag":"#プチプラ","level":"cool","rank":"5位"}]}'+
+      ']}\n今日の'+pn+'で実際にバズるタグに書き換えて返せ。'
+    );
+    c.d = d; c.t = Date.now();
+    ci.textContent = '取得完了 · 1時間キャッシュ';
+    renderTags(d);
+  } catch(e) {
+    el.innerHTML = '<div class="card"><p style="color:var(--pink);font-size:12px;padding:16px;">'+e.message+'</p></div>';
   } finally {
-    refreshBtn.disabled = false;
+    rb.disabled = false;
   }
 }
 
-function renderTodayTags(parsed) {
-  const container = document.getElementById('todayTags');
-  const rowsHTML = parsed.genres.map(g => `
-    <div class="genre-row">
-      <div class="genre-label">${g.label}</div>
-      <div class="genre-tags">
-        ${g.tags.map(t => `<span class="genre-tag ${t.level}" onclick="fillKeyword('${t.tag.replace('#','')}')">${t.tag}<span class="tag-rank">${t.rank}</span></span>`).join('')}
-      </div>
-    </div>`).join('');
-  container.innerHTML = `<div class="genre-rows">${rowsHTML}</div>`;
+function renderTags(d) {
+  const html = d.genres.map(g=>
+    '<div class="genre-row">'+
+    '<div class="glabel">'+g.label+'</div>'+
+    '<div class="tags">'+
+    g.tags.map(t=>'<span class="tag '+t.level+'" onclick="setKw(\''+t.tag.replace('#','')+'\')">'+ t.tag+'<span class="tag-rank">'+t.rank+'</span></span>').join('')+
+    '</div></div>'
+  ).join('');
+  document.getElementById('tagArea').innerHTML = '<div class="card">'+html+'</div>';
 }
 
-function fillKeyword(tag) {
-  document.getElementById('keyword').value = tag;
-  document.querySelector('.search-panel').scrollIntoView({ behavior:'smooth', block:'center' });
+function setKw(w) {
+  document.getElementById('kw').value = w;
+  document.querySelector('.search-card').scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 async function analyze() {
-  const keyword = document.getElementById('keyword').value.trim();
-  if (!keyword) { document.getElementById('keyword').focus(); return; }
-
+  const kw = document.getElementById('kw').value.trim();
+  if (!kw) { document.getElementById('kw').focus(); return; }
   const genre = document.getElementById('genre').value;
-  const btn = document.getElementById('searchBtn');
-  const loading = document.getElementById('mainLoading');
-  const results = document.getElementById('results');
-  const errorBox = document.getElementById('errorBox');
-  const pName = currentPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
+  const pn = plat==='tiktok'?'TikTok':'Instagram';
 
-  btn.disabled = true;
-  loading.classList.add('active');
-  results.classList.remove('active');
-  errorBox.classList.remove('active');
-  results.innerHTML = '';
-  document.getElementById('loadingText').textContent = `AIが「${keyword}」を分析中...`;
-
-  const prompt = `${pName}のバズ分析。キーワード:${keyword} ジャンル:${genre}
-必ずJSONのみ返すこと。前置き・説明・コードブロック不要。
-{"overview":{"hotScore":85,"avgViews":"75万","engagementRate":"4.2%","trendDirection":"上昇中"},"hashtags":[{"tag":"#例","level":"hot","views":"2億"},{"tag":"#例2","level":"hot","views":"8000万"},{"tag":"#例3","level":"warm","views":"3000万"},{"tag":"#例4","level":"warm","views":"2000万"},{"tag":"#例5","level":"cool","views":"1200万"},{"tag":"#例6","level":"cool","views":"800万"}],"contentIdeas":[{"title":"企画タイトル1","hook":"フック文1","description":"説明1"},{"title":"企画タイトル2","hook":"フック文2","description":"説明2"},{"title":"企画タイトル3","hook":"フック文3","description":"説明3"}],"affiliateOpportunities":[{"icon":"💊","name":"商品名1","description":"説明","earning":"¥500〜3000"},{"icon":"📱","name":"商品名2","description":"説明","earning":"¥200〜800"},{"icon":"👗","name":"商品名3","description":"説明","earning":"¥800〜2000"}],"sampleScript":{"hook":"フック文","body":"本編テキスト","cta":"CTA文"}}
-上記JSONを「${keyword}」向けに具体的な内容で返せ。`;
+  document.getElementById('abtn').disabled = true;
+  document.getElementById('spin').classList.add('on');
+  document.getElementById('res').classList.remove('on');
+  document.getElementById('err').classList.remove('on');
+  document.getElementById('res').innerHTML = '';
+  document.getElementById('spintxt').textContent = '「'+kw+'」を分析中...';
 
   try {
-    const data = await callClaude(prompt);
-    renderResults(keyword, data);
-  } catch(err) {
-    errorBox.textContent = err.message;
-    errorBox.classList.add('active');
+    const d = await ask(
+      pn+'でキーワード「'+kw+'」(ジャンル:'+genre+')のバズ分析をJSONで返せ。JSONのみ。前置き不要。\n'+
+      '{"overview":{"hotScore":85,"avgViews":"75万","engagementRate":"4.2%","trendDirection":"上昇中"},'+
+      '"hashtags":[{"tag":"#例1","level":"hot","views":"2億"},{"tag":"#例2","level":"hot","views":"8000万"},{"tag":"#例3","level":"warm","views":"3000万"},{"tag":"#例4","level":"warm","views":"2000万"},{"tag":"#例5","level":"cool","views":"1000万"},{"tag":"#例6","level":"cool","views":"700万"}],'+
+      '"contentIdeas":[{"title":"企画1","hook":"フック1","description":"説明1"},{"title":"企画2","hook":"フック2","description":"説明2"},{"title":"企画3","hook":"フック3","description":"説明3"}],'+
+      '"affiliateOpportunities":[{"icon":"💊","name":"商品1","description":"説明","earning":"¥500〜3000"},{"icon":"📱","name":"商品2","description":"説明","earning":"¥200〜800"},{"icon":"👗","name":"商品3","description":"説明","earning":"¥800〜2000"}],'+
+      '"sampleScript":{"hook":"フック文","body":"本編","cta":"CTA"}}\n'+
+      '「'+kw+'」向けに具体的な内容で返せ。'
+    );
+    renderRes(kw, d);
+  } catch(e) {
+    const eb = document.getElementById('err');
+    eb.textContent = e.message;
+    eb.classList.add('on');
   } finally {
-    btn.disabled = false;
-    loading.classList.remove('active');
+    document.getElementById('abtn').disabled = false;
+    document.getElementById('spin').classList.remove('on');
   }
 }
 
-function renderResults(keyword, data) {
-  const results = document.getElementById('results');
-  const hashHTML = data.hashtags.map(h => `<span class="hashtag ${h.level}">${h.tag}<span class="hashtag-count">${h.views}</span></span>`).join('');
-  const ideasHTML = data.contentIdeas.map((idea, i) => `
-    <div class="idea-item">
-      <div class="idea-num">${String(i+1).padStart(2,'0')}</div>
-      <div>
-        <div class="idea-text"><strong>${idea.title}</strong><br>${idea.description}</div>
-        <div class="idea-hook">💬 ${idea.hook}</div>
-      </div>
-    </div>`).join('');
-  const affHTML = data.affiliateOpportunities.map(a => `
-    <div class="affili-card">
-      <div class="affili-icon">${a.icon}</div>
-      <div class="affili-name">${a.name}</div>
-      <div class="affili-desc">${a.description}</div>
-      <div class="affili-earning">💰 ${a.earning}</div>
-    </div>`).join('');
-
-  results.innerHTML = `
-    <div class="results-header">
-      <span class="results-title">ANALYSIS COMPLETE</span>
-      <span class="keyword-badge">#${keyword}</span>
-    </div>
-    <div class="stats-row">
-      <div class="stat-box"><div class="stat-value">${data.overview.hotScore}</div><div class="stat-label">バズスコア</div></div>
-      <div class="stat-box"><div class="stat-value">${data.overview.avgViews}</div><div class="stat-label">平均再生数</div></div>
-      <div class="stat-box"><div class="stat-value">${data.overview.engagementRate}</div><div class="stat-label">エンゲージメント</div></div>
-      <div class="stat-box"><div class="stat-value" style="font-size:16px;color:var(--accent)">${data.overview.trendDirection}</div><div class="stat-label">トレンド</div></div>
-    </div>
-    <div class="section"><div class="section-title">バズハッシュタグ</div><div class="hashtag-grid">${hashHTML}</div></div>
-    <div class="section"><div class="section-title">バズりやすいコンテンツ企画</div><div class="idea-list">${ideasHTML}</div></div>
-    <div class="section"><div class="section-title">アフィリエイト案件チャンス</div><div class="affili-grid">${affHTML}</div></div>
-    <div class="section">
-      <div class="section-title">サンプル台本</div>
-      <div class="script-label">🎬 フック</div><div class="script-box">${data.sampleScript.hook}</div>
-      <div class="script-label">📝 本編</div><div class="script-box">${data.sampleScript.body}</div>
-      <div class="script-label">📣 CTA</div><div class="script-box">${data.sampleScript.cta}</div>
-    </div>`;
-  results.classList.add('active');
-  results.scrollIntoView({ behavior:'smooth', block:'start' });
+function renderRes(kw, d) {
+  const r = document.getElementById('res');
+  r.innerHTML =
+    '<div class="res-head"><span class="res-title">ANALYSIS COMPLETE</span><span class="kbadge">#'+kw+'</span></div>'+
+    '<div class="stats">'+
+      '<div class="sbox"><div class="sval">'+d.overview.hotScore+'</div><div class="slabel">バズスコア</div></div>'+
+      '<div class="sbox"><div class="sval">'+d.overview.avgViews+'</div><div class="slabel">平均再生数</div></div>'+
+      '<div class="sbox"><div class="sval">'+d.overview.engagementRate+'</div><div class="slabel">エンゲージメント</div></div>'+
+      '<div class="sbox"><div class="sval" style="font-size:15px;color:var(--accent)">'+d.overview.trendDirection+'</div><div class="slabel">トレンド</div></div>'+
+    '</div>'+
+    '<div class="sec"><div class="sec-title">バズハッシュタグ</div><div class="htags">'+
+      d.hashtags.map(h=>'<span class="htag '+h.level+'">'+h.tag+'<span class="hcount">'+h.views+'</span></span>').join('')+
+    '</div></div>'+
+    '<div class="sec"><div class="sec-title">バズりやすいコンテンツ企画</div><div class="ideas">'+
+      d.contentIdeas.map((x,i)=>'<div class="idea"><div class="inum">'+String(i+1).padStart(2,'0')+'</div><div><div class="itxt"><strong>'+x.title+'</strong><br>'+x.description+'</div><div class="ihook">💬 '+x.hook+'</div></div></div>').join('')+
+    '</div></div>'+
+    '<div class="sec"><div class="sec-title">アフィリエイト案件チャンス</div><div class="affs">'+
+      d.affiliateOpportunities.map(a=>'<div class="aff"><div class="aicon">'+a.icon+'</div><div class="aname">'+a.name+'</div><div class="adesc">'+a.description+'</div><div class="aearning">💰 '+a.earning+'</div></div>').join('')+
+    '</div></div>'+
+    '<div class="sec"><div class="sec-title">サンプル台本</div>'+
+      '<div class="slabel2">🎬 フック</div><div class="sbox2">'+d.sampleScript.hook+'</div>'+
+      '<div class="slabel2">📝 本編</div><div class="sbox2">'+d.sampleScript.body+'</div>'+
+      '<div class="slabel2">📣 CTA</div><div class="sbox2">'+d.sampleScript.cta+'</div>'+
+    '</div>';
+  r.classList.add('on');
+  r.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('keyword').addEventListener('keydown', e => { if (e.key === 'Enter') analyze(); });
-  loadTodayTags();
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('kw').addEventListener('keydown',e=>{if(e.key==='Enter')analyze();});
+  loadTags();
 });
 </script>
 </body>
