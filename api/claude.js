@@ -20,7 +20,6 @@ export default async function handler(req, res) {
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 4096,
         messages: req.body.messages,
-        system: 'JSONのみ返せ。前置きや説明やコードブロック不要。',
       }),
     });
     const txt = await r.text();
