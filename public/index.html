@@ -1069,85 +1069,10 @@ async function analyze() {
   results.innerHTML = '';
 
   const platformName = currentPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
-  const prompt = `あなたは${platformName}のバズトレンド分析の専門家です。
-キーワード「${keyword}」（ジャンル: ${genre}）について、${platformName}のバズ分析を行ってください。
-${currentPlatform === 'instagram' ? 'Instagramはリール・フィード向けの分析で、エンゲージメント率や保存率も重視してください。' : ''}
-
-以下のJSON形式で回答してください。JSONのみ返し、コードブロックや説明文は不要です：
-
-{
-  "overview": {
-    "hotScore": 85,
-    "avgViews": "75万",
-    "engagementRate": "4.2%",
-    "trendDirection": "上昇中"
-  },
-  "hashtags": [
-    {"tag": "#ダイエット", "level": "hot", "views": "2.1億"},
-    {"tag": "#ダイエット方法", "level": "hot", "views": "8500万"},
-    {"tag": "#痩せたい", "level": "warm", "views": "3200万"},
-    {"tag": "#ダイエット飯", "level": "warm", "views": "2800万"},
-    {"tag": "#糖質制限", "level": "cool", "views": "1500万"},
-    {"tag": "#ダイエット記録", "level": "cool", "views": "1200万"},
-    {"tag": "#ビフォーアフター", "level": "hot", "views": "4500万"},
-    {"tag": "#運動", "level": "warm", "views": "2100万"}
-  ],
-  "contentIdeas": [
-    {
-      "title": "〇日間チャレンジ系",
-      "hook": "「30日で-5kg！やったことだけ全部見せる」",
-      "description": "変化の記録を短くまとめた動画。ビフォーアフターが最もバズりやすい形式"
-    },
-    {
-      "title": "失敗談・暴露系",
-      "hook": "「今まで騙されてたダイエット法3選」",
-      "description": "共感と驚きを同時に引き出す。コメントが増えやすくアルゴリズムに有利"
-    },
-    {
-      "title": "ルーティン公開系",
-      "hook": "「朝5分でできる最強痩せルーティン」",
-      "description": "再現性が高く保存率・シェア率が高い。アフィリエイト商品を自然に紹介できる"
-    },
-    {
-      "title": "比較・ランキング系",
-      "hook": "「プロテイン飲み比べ、正直に言う」",
-      "description": "商品比較は購買意欲が高い視聴者が集まる。アフィリエイト収益に直結しやすい"
-    }
-  ],
-  "affiliateOpportunities": [
-    {
-      "icon": "💊",
-      "name": "サプリメント",
-      "description": "プロテイン・脂肪燃焼系。単価1000〜5000円、報酬率8〜12%",
-      "earning": "1件 ¥500〜¥3,000"
-    },
-    {
-      "icon": "🥗",
-      "name": "食事管理アプリ",
-      "description": "あすけん・カロミルなど。インストール課金型",
-      "earning": "1件 ¥200〜¥800"
-    },
-    {
-      "icon": "👗",
-      "name": "加圧インナー",
-      "description": "補正・着痩せ系ファッション。購買率が高い",
-      "earning": "1件 ¥800〜¥2,000"
-    },
-    {
-      "icon": "🏋️",
-      "name": "ジム・オンライン講座",
-      "description": "パーソナルジムの無料体験。高単価案件",
-      "earning": "1件 ¥3,000〜¥15,000"
-    }
-  ],
-  "sampleScript": {
-    "hook": "「これ知らずにダイエットしてる人、全員損してます」",
-    "body": "実は多くの人が間違えてるのが、〇〇です。\n私も最初は知らなくて3ヶ月無駄にしました。\n正しいやり方はシンプルで、✅〇〇 ✅〇〇 ✅〇〇 の3つだけ。\nこれをやってから1ヶ月で〇kg変わりました。",
-    "cta": "「詳しいやり方はプロフのリンクから↑ 無料で見れます」"
-  }
-}
-
-キーワード「${keyword}」に合わせて、すべての内容を具体的・リアルに書き換えてください。数値もそれらしい具体的な数値にしてください。`;
+  const prompt = `${platformName}のバズ分析。キーワード:「${keyword}」ジャンル:${genre}
+JSONのみ返す。説明文不要。
+{"overview":{"hotScore":85,"avgViews":"75万","engagementRate":"4.2%","trendDirection":"上昇中"},"hashtags":[{"tag":"#例1","level":"hot","views":"2億"},{"tag":"#例2","level":"hot","views":"8000万"},{"tag":"#例3","level":"warm","views":"3000万"},{"tag":"#例4","level":"warm","views":"2000万"},{"tag":"#例5","level":"cool","views":"1000万"},{"tag":"#例6","level":"cool","views":"800万"}],"contentIdeas":[{"title":"タイトル1","hook":"フック文1","description":"説明1"},{"title":"タイトル2","hook":"フック文2","description":"説明2"},{"title":"タイトル3","hook":"フック文3","description":"説明3"}],"affiliateOpportunities":[{"icon":"💊","name":"商品1","description":"説明","earning":"¥500〜3000"},{"icon":"📱","name":"商品2","description":"説明","earning":"¥200〜800"},{"icon":"👗","name":"商品3","description":"説明","earning":"¥800〜2000"}],"sampleScript":{"hook":"フック","body":"本編","cta":"CTA"}}
+上記JSONを「${keyword}」向けに具体的な内容で返せ。`;
 
   try {
     const response = await fetch("/api/claude", {
