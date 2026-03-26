@@ -17,10 +17,16 @@ export default async function handler(req, res) {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 2048,
+        messages: req.body.messages,
+      }),
     });
-    const data = await response.json();
-    return res.status(response.status).json(data);
+
+    const text = await response.text();
+    res.setHeader('Content-Type', 'application/json');
+    return res.status(response.status).send(text);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
