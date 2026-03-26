@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TikTok Buzz Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #ff2d55;
+    --pink: #ff6b8a;
+    --dark: #0a0a0f;
+    --card: #12121a;
+    --border: #1e1e2e;
+    --text: #e8e8f0;
+    --muted: #6b6b85;
+    --accent: #00f5d4;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at 20% 20%, rgba(255,45,85,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(0,245,212,0.04) 0%, transparent 50%);
+    animation: bgPulse 8s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  @keyframes bgPulse {
+    0% { transform: scale(1) rotate(0deg); }
+    100% { transform: scale(1.1) rotate(3deg); }
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 40px 0 30px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .logo-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--red);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    animation: iconPop 2s ease-in-out infinite;
+  }
+
+  @keyframes iconPop {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 6vw, 48px);
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #fff 30%, var(--red) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Search panel */
+  .search-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .input-group {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .input-group label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .input-group input, .input-group select {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-group input:focus, .input-group select:focus {
+    border-color: var(--red);
+  }
+
+  .input-group select option {
+    background: var(--dark);
+  }
+
+  .search-btn {
+    align-self: flex-end;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .search-btn:hover:not(:disabled) {
+    background: var(--pink);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(255,45,85,0.35);
+  }
+
+  .search-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .loading.active { display: block; }
+
+  .loading-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+    height: 50px;
+    margin-bottom: 16px;
+  }
+
+  .bar {
+    width: 8px;
+    border-radius: 4px;
+    background: var(--red);
+    animation: barAnim 1s ease-in-out infinite;
+  }
+
+  .bar:nth-child(1) { animation-delay: 0s; }
+  .bar:nth-child(2) { animation-delay: 0.15s; }
+  .bar:nth-child(3) { animation-delay: 0.3s; }
+  .bar:nth-child(4) { animation-delay: 0.45s; }
+  .bar:nth-child(5) { animation-delay: 0.6s; }
+
+  @keyframes barAnim {
+    0%, 100% { height: 12px; opacity: 0.4; }
+    50% { height: 46px; opacity: 1; }
+  }
+
+  .loading p {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* Results */
+  .results { display: none; }
+  .results.active { display: block; }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    flex-wrap: gap;
+    gap: 12px;
+  }
+
+  .results-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+  }
+
+  .keyword-badge {
+    background: rgba(255,45,85,0.15);
+    border: 1px solid rgba(255,45,85,0.3);
+    color: var(--red);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Section cards */
+  .section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 20px;
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+
+  .section-title {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 2px;
+    background: var(--red);
+  }
+
+  /* Hashtag bubbles */
+  .hashtag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .hashtag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid transparent;
+  }
+
+  .hashtag.hot {
+    background: rgba(255,45,85,0.15);
+    border-color: rgba(255,45,85,0.4);
+    color: #ff6b8a;
+  }
+
+  .hashtag.warm {
+    background: rgba(255,165,0,0.12);
+    border-color: rgba(255,165,0,0.3);
+    color: #ffb347;
+  }
+
+  .hashtag.cool {
+    background: rgba(0,245,212,0.1);
+    border-color: rgba(0,245,212,0.25);
+    color: var(--accent);
+  }
+
+  .hashtag:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+  }
+
+  .hashtag-count {
+    font-size: 10px;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+
+  /* Content ideas */
+  .idea-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .idea-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    border-left: 3px solid var(--red);
+    transition: background 0.2s;
+  }
+
+  .idea-item:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .idea-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--red);
+    line-height: 1;
+    min-width: 28px;
+  }
+
+  .idea-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .idea-hooks {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Affiliate opportunities */
+  .affili-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
+  .affili-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    transition: all 0.2s;
+  }
+
+  .affili-card:hover {
+    border-color: rgba(255,45,85,0.4);
+    background: rgba(255,45,85,0.05);
+  }
+
+  .affili-icon { font-size: 24px; margin-bottom: 8px; }
+  .affili-name { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+  .affili-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
+  .affili-earning {
+    font-size: 11px;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-box {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--red);
+    letter-spacing: 1px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* Script section */
+  .script-box {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .script-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 8px;
+    margin-top: 16px;
+  }
+
+  .script-label:first-child { margin-top: 0; }
+
+  /* Platform switcher */
+  .platform-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .platform-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 28px;
+    border-radius: 30px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+  }
+
+  .platform-tab:hover { color: var(--text); border-color: #444; }
+
+  .platform-tab.active-tiktok {
+    background: rgba(255,45,85,0.15);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  .platform-tab.active-instagram {
+    background: rgba(193,53,132,0.15);
+    border-color: #c13584;
+    color: #fff;
+  }
+
+  .platform-tab .tab-icon { font-size: 18px; }
+
+  /* Today's Buzz Tags */
+  .today-section {
+    margin-bottom: 32px;
+  }
+
+  .today-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .today-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .today-title .live-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: livePulse 1.4s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  .refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+  }
+
+  .refresh-btn:hover:not(:disabled) {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .genre-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .genre-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    animation: fadeUp 0.4s ease forwards;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .genre-row:nth-child(1) { animation-delay: 0.05s; }
+  .genre-row:nth-child(2) { animation-delay: 0.1s; }
+  .genre-row:nth-child(3) { animation-delay: 0.15s; }
+  .genre-row:nth-child(4) { animation-delay: 0.2s; }
+
+  .genre-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .genre-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .genre-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    border: 1px solid transparent;
+  }
+
+  .genre-tag.hot {
+    background: rgba(255,45,85,0.13);
+    border-color: rgba(255,45,85,0.35);
+    color: #ff6b8a;
+  }
+
+  .genre-tag.warm {
+    background: rgba(255,165,0,0.1);
+    border-color: rgba(255,165,0,0.28);
+    color: #ffb347;
+  }
+
+  .genre-tag.cool {
+    background: rgba(0,245,212,0.08);
+    border-color: rgba(0,245,212,0.22);
+    color: var(--accent);
+  }
+
+  .genre-tag:hover {
+    transform: scale(1.06);
+    filter: brightness(1.25);
+  }
+
+  .genre-tag .tag-rank {
+    font-size: 9px;
+    opacity: 0.65;
+    font-weight: 400;
+  }
+
+  .today-loading {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    text-align: center;
+  }
+
+  .today-loading .loading-bars {
+    height: 30px;
+    margin-bottom: 10px;
+  }
+
+  .today-loading .bar { background: var(--muted); }
+
+  .today-loading p {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+
+  /* API Key Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .modal h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+
+  .modal p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  .modal p a { color: var(--red); text-decoration: none; }
+
+  .modal input {
+    width: 100%;
+    background: var(--dark);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 16px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: monospace;
+    outline: none;
+    margin-bottom: 14px;
+    transition: border-color 0.2s;
+  }
+
+  .modal input:focus { border-color: var(--red); }
+
+  .modal-btn {
+    width: 100%;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn:hover { background: var(--pink); }
+
+  .modal-note {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 12px;
+  }
+
+  .api-key-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    z-index: 50;
+    transition: all 0.2s;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+
+  .api-key-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* Error */
+  .error-box {
+    display: none;
+    background: rgba(255,45,85,0.1);
+    border: 1px solid rgba(255,45,85,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    color: var(--pink);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .error-box.active { display: block; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--dark); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 600px) {
+    .search-row { flex-direction: column; }
+    .search-btn { width: 100%; }
+    .affili-grid { grid-template-columns: 1fr 1fr; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">
+      <div class="logo-icon" id="logoIcon">🔥</div>
+      <h1 id="mainTitle">TikTok Buzz Analyzer</h1>
+    </div>
+    <p class="tagline">AI-Powered Trend Research · Powered by Claude</p>
+    <div class="platform-tabs">
+      <button class="platform-tab active-tiktok" id="tabTiktok" onclick="switchPlatform('tiktok')">
+        <span class="tab-icon">🎵</span> TikTok
+      </button>
+      <button class="platform-tab" id="tabInstagram" onclick="switchPlatform('instagram')">
+        <span class="tab-icon">📸</span> Instagram
+      </button>
+    </div>
+  </header>
+
+  <!-- Today's Buzz Tags -->
+  <div class="today-section">
+    <div class="today-header">
+      <div class="today-title">
+        <div class="live-dot"></div>
+        TODAY'S BUZZ TAGS
+      </div>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadTodayTags(true)">↻ 更新</button>
+    </div>
+    <div id="cacheInfo" style="font-size:11px; color:var(--muted); margin-bottom:10px; letter-spacing:1px;"></div>
+    <div id="todayTags">
+      <div class="today-loading">
+        <div class="loading-bars">
+          <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+          <div class="bar"></div><div class="bar"></div>
+        </div>
+        <p>今日のバズタグを取得中...</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="search-panel">
+    <div class="search-row">
+      <div class="input-group">
+        <label>キーワード</label>
+        <input type="text" id="keyword" placeholder="例: ダイエット、美容、副業..." />
+      </div>
+      <div class="input-group" style="max-width: 160px;">
+        <label>ジャンル</label>
+        <select id="genre">
+          <option value="general">すべて</option>
+          <option value="diet">ダイエット・美容</option>
+          <option value="money">副業・お金</option>
+          <option value="food">グルメ・料理</option>
+          <option value="gadget">ガジェット・家電</option>
+          <option value="fashion">ファッション</option>
+          <option value="anime">アニメ・エンタメ</option>
+        </select>
+      </div>
+      <button class="search-btn" id="searchBtn" onclick="analyze()">ANALYZE</button>
+    </div>
+  </div>
+
+  <div class="error-box" id="errorBox">
+    APIキーの設定が必要です。右上の設定ボタンからAnthropicのAPIキーを入力してください。
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="loading-bars">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <p id="loadingText">AIがTikTokトレンドを分析中...</p>
+  </div>
+
+  <div class="results" id="results"></div>
+</div>
+
+<script>
+// プラットフォーム状態
+let currentPlatform = 'tiktok';
+
+function switchPlatform(platform) {
+  if (currentPlatform === platform) return;
+  currentPlatform = platform;
+
+  const isTiktok = platform === 'tiktok';
+
+  // タブ切り替え
+  document.getElementById('tabTiktok').className = 'platform-tab' + (isTiktok ? ' active-tiktok' : '');
+  document.getElementById('tabInstagram').className = 'platform-tab' + (!isTiktok ? ' active-instagram' : '');
+
+  // タイトル・アイコン切り替え
+  document.getElementById('mainTitle').textContent = isTiktok ? 'TikTok Buzz Analyzer' : 'Instagram Buzz Analyzer';
+  document.getElementById('logoIcon').textContent = isTiktok ? '🔥' : '📸';
+  document.getElementById('loadingText').textContent = isTiktok ? 'AIがTikTokトレンドを分析中...' : 'AIがInstagramトレンドを分析中...';
+
+  // バズタグを切り替え（キャッシュあれば即表示）
+  loadTodayTags();
+}
+
+
+// メモリキャッシュ（プラットフォーム別）
+const memCache = { tiktok: { data: null, timestamp: 0 }, instagram: { data: null, timestamp: 0 } };
+const CACHE_TTL = 60 * 60 * 1000; // 1時間
+
+function renderTodayTags(parsed) {
+  const container = document.getElementById('todayTags');
+  const rowsHTML = parsed.genres.map(genre => `
+    <div class="genre-row">
+      <div class="genre-label">${genre.label}</div>
+      <div class="genre-tags">
+        ${genre.tags.map(t => `
+          <span class="genre-tag ${t.level}" onclick="fillKeyword('${t.tag.replace('#','')}')">
+            ${t.tag}
+            <span class="tag-rank">${t.rank}</span>
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+  container.innerHTML = `<div class="genre-rows">${rowsHTML}</div>`;
+}
+
+async function loadTodayTags(forceRefresh = false) {
+  const container = document.getElementById('todayTags');
+  const refreshBtn = document.getElementById('refreshBtn');
+  const cache = memCache[currentPlatform];
+  const platformName = currentPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
+
+  // メモリキャッシュチェック
+  if (!forceRefresh && cache.data && (Date.now() - cache.timestamp < CACHE_TTL)) {
+    renderTodayTags(cache.data);
+    const remaining = Math.round((CACHE_TTL - (Date.now() - cache.timestamp)) / 60000);
+    document.getElementById('cacheInfo').textContent = `キャッシュ（あと約${remaining}分）`;
+    return;
+  }
+
+  refreshBtn.disabled = true;
+  document.getElementById('cacheInfo').textContent = '';
+  container.innerHTML = `
+    <div class="today-loading">
+      <div class="loading-bars">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+        <div class="bar"></div><div class="bar"></div>
+      </div>
+      <p>${platformName}のバズタグを取得中...</p>
+    </div>`;
+
+  const prompt = `あなたは${platformName}のトレンド分析専門家です。
+現在の日本の${platformName}でバズっているハッシュタグを、ジャンル別に分析してください。
+${currentPlatform === 'instagram' ? 'Instagramは画像・リール向けのタグで、#をつけた日本語・英語混在タグも含めてください。' : ''}
+
+以下のJSON形式のみで返してください。説明文・コードブロック不要：
+
+{
+  "genres": [
+    {
+      "label": "🔥 ダイエット・美容",
+      "tags": [
+        {"tag": "#ダイエット", "level": "hot", "rank": "1位"},
+        {"tag": "#スキンケア", "level": "hot", "rank": "2位"},
+        {"tag": "#痩せたい", "level": "warm", "rank": "3位"},
+        {"tag": "#ビフォーアフター", "level": "warm", "rank": "4位"},
+        {"tag": "#糖質制限", "level": "cool", "rank": "5位"}
+      ]
+    },
+    {
+      "label": "💰 副業・お金",
+      "tags": [
+        {"tag": "#副業", "level": "hot", "rank": "1位"},
+        {"tag": "#在宅ワーク", "level": "hot", "rank": "2位"},
+        {"tag": "#アフィリエイト", "level": "warm", "rank": "3位"},
+        {"tag": "#節約", "level": "warm", "rank": "4位"},
+        {"tag": "#投資初心者", "level": "cool", "rank": "5位"}
+      ]
+    },
+    {
+      "label": "🍜 グルメ・料理",
+      "tags": [
+        {"tag": "#レシピ", "level": "hot", "rank": "1位"},
+        {"tag": "#時短レシピ", "level": "hot", "rank": "2位"},
+        {"tag": "#節約飯", "level": "warm", "rank": "3位"},
+        {"tag": "#おうちごはん", "level": "warm", "rank": "4位"},
+        {"tag": "#映えごはん", "level": "cool", "rank": "5位"}
+      ]
+    },
+    {
+      "label": "📱 ガジェット・ファッション",
+      "tags": [
+        {"tag": "#ガジェット", "level": "hot", "rank": "1位"},
+        {"tag": "#プチプラコーデ", "level": "hot", "rank": "2位"},
+        {"tag": "#購入品紹介", "level": "warm", "rank": "3位"},
+        {"tag": "#OOTD", "level": "warm", "rank": "4位"},
+        {"tag": "#ユニクロコーデ", "level": "cool", "rank": "5位"}
+      ]
+    }
+  ]
+}
+
+今日の日本の${platformName}で実際にバズりそうな具体的なタグで、すべて書き換えてください。seasonやトレンドも考慮してください。`;
+
+  try {
+    const response = await fetch("/api/claude", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.content) {
+      container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;word-break:break-all;">APIエラー: ${JSON.stringify(data).slice(0,300)}</p></div>`;
+      refreshBtn.disabled = false;
+      return;
+    }
+
+    const text = data.content.map(i => i.text || "").join("");
+    const clean = text.replace(/```json|```/g, "").trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;word-break:break-all;">JSON失敗: ${clean.slice(0,300)}</p></div>`;
+      refreshBtn.disabled = false;
+      return;
+    }
+
+    // メモリにキャッシュ保存（プラットフォーム別）
+    memCache[currentPlatform].data = parsed;
+    memCache[currentPlatform].timestamp = Date.now();
+    document.getElementById('cacheInfo').textContent = '取得完了 · 1時間キャッシュ';
+
+    renderTodayTags(parsed);
+
+  } catch (err) {
+    container.innerHTML = `<div class="today-loading"><p style="color:var(--pink);font-size:11px;word-break:break-all;">通信エラー: ${err.message}</p></div>`;
+  } finally {
+    refreshBtn.disabled = false;
+  }
+}
+
+function fillKeyword(tag) {
+  document.getElementById('keyword').value = tag;
+  document.getElementById('keyword').focus();
+  document.querySelector('.search-panel').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function analyze() {
+  const keyword = document.getElementById('keyword').value.trim();
+  const genre = document.getElementById('genre').value;
+
+  if (!keyword) {
+    document.getElementById('keyword').focus();
+    return;
+  }
+
+  const btn = document.getElementById('searchBtn');
+  const loading = document.getElementById('loading');
+  const results = document.getElementById('results');
+  const errorBox = document.getElementById('errorBox');
+
+  btn.disabled = true;
+  loading.classList.add('active');
+  results.classList.remove('active');
+  errorBox.classList.remove('active');
+  results.innerHTML = '';
+
+  const platformName = currentPlatform === 'tiktok' ? 'TikTok' : 'Instagram';
+  const prompt = `あなたは${platformName}のバズトレンド分析の専門家です。
+キーワード「${keyword}」（ジャンル: ${genre}）について、${platformName}のバズ分析を行ってください。
+${currentPlatform === 'instagram' ? 'Instagramはリール・フィード向けの分析で、エンゲージメント率や保存率も重視してください。' : ''}
+
+以下のJSON形式で回答してください。JSONのみ返し、コードブロックや説明文は不要です：
+
+{
+  "overview": {
+    "hotScore": 85,
+    "avgViews": "75万",
+    "engagementRate": "4.2%",
+    "trendDirection": "上昇中"
+  },
+  "hashtags": [
+    {"tag": "#ダイエット", "level": "hot", "views": "2.1億"},
+    {"tag": "#ダイエット方法", "level": "hot", "views": "8500万"},
+    {"tag": "#痩せたい", "level": "warm", "views": "3200万"},
+    {"tag": "#ダイエット飯", "level": "warm", "views": "2800万"},
+    {"tag": "#糖質制限", "level": "cool", "views": "1500万"},
+    {"tag": "#ダイエット記録", "level": "cool", "views": "1200万"},
+    {"tag": "#ビフォーアフター", "level": "hot", "views": "4500万"},
+    {"tag": "#運動", "level": "warm", "views": "2100万"}
+  ],
+  "contentIdeas": [
+    {
+      "title": "〇日間チャレンジ系",
+      "hook": "「30日で-5kg！やったことだけ全部見せる」",
+      "description": "変化の記録を短くまとめた動画。ビフォーアフターが最もバズりやすい形式"
+    },
+    {
+      "title": "失敗談・暴露系",
+      "hook": "「今まで騙されてたダイエット法3選」",
+      "description": "共感と驚きを同時に引き出す。コメントが増えやすくアルゴリズムに有利"
+    },
+    {
+      "title": "ルーティン公開系",
+      "hook": "「朝5分でできる最強痩せルーティン」",
+      "description": "再現性が高く保存率・シェア率が高い。アフィリエイト商品を自然に紹介できる"
+    },
+    {
+      "title": "比較・ランキング系",
+      "hook": "「プロテイン飲み比べ、正直に言う」",
+      "description": "商品比較は購買意欲が高い視聴者が集まる。アフィリエイト収益に直結しやすい"
+    }
+  ],
+  "affiliateOpportunities": [
+    {
+      "icon": "💊",
+      "name": "サプリメント",
+      "description": "プロテイン・脂肪燃焼系。単価1000〜5000円、報酬率8〜12%",
+      "earning": "1件 ¥500〜¥3,000"
+    },
+    {
+      "icon": "🥗",
+      "name": "食事管理アプリ",
+      "description": "あすけん・カロミルなど。インストール課金型",
+      "earning": "1件 ¥200〜¥800"
+    },
+    {
+      "icon": "👗",
+      "name": "加圧インナー",
+      "description": "補正・着痩せ系ファッション。購買率が高い",
+      "earning": "1件 ¥800〜¥2,000"
+    },
+    {
+      "icon": "🏋️",
+      "name": "ジム・オンライン講座",
+      "description": "パーソナルジムの無料体験。高単価案件",
+      "earning": "1件 ¥3,000〜¥15,000"
+    }
+  ],
+  "sampleScript": {
+    "hook": "「これ知らずにダイエットしてる人、全員損してます」",
+    "body": "実は多くの人が間違えてるのが、〇〇です。\n私も最初は知らなくて3ヶ月無駄にしました。\n正しいやり方はシンプルで、✅〇〇 ✅〇〇 ✅〇〇 の3つだけ。\nこれをやってから1ヶ月で〇kg変わりました。",
+    "cta": "「詳しいやり方はプロフのリンクから↑ 無料で見れます」"
+  }
+}
+
+キーワード「${keyword}」に合わせて、すべての内容を具体的・リアルに書き換えてください。数値もそれらしい具体的な数値にしてください。`;
+
+  try {
+    const response = await fetch("/api/claude", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.content) {
+      errorBox.textContent = `APIエラー: ${JSON.stringify(data).slice(0, 200)}`;
+      errorBox.classList.add('active');
+      return;
+    }
+
+    const text = data.content.map(i => i.text || "").join("");
+    const clean = text.replace(/```json|```/g, "").trim();
+
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      errorBox.textContent = `JSON解析エラー: ${clean.slice(0, 150)}`;
+      errorBox.classList.add('active');
+      return;
+    }
+
+    renderResults(keyword, parsed);
+
+  } catch (err) {
+    errorBox.textContent = `通信エラー: ${err.message}`;
+    errorBox.classList.add('active');
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('active');
+  }
+}
+
+function renderResults(keyword, data) {
+  const results = document.getElementById('results');
+
+  const hashtagsHTML = data.hashtags.map(h => `
+    <span class="hashtag ${h.level}">
+      ${h.tag}
+      <span class="hashtag-count">${h.views}</span>
+    </span>
+  `).join('');
+
+  const ideasHTML = data.contentIdeas.map((idea, i) => `
+    <div class="idea-item">
+      <div class="idea-num">${String(i+1).padStart(2,'0')}</div>
+      <div>
+        <div class="idea-text"><strong>${idea.title}</strong><br>${idea.description}</div>
+        <div class="idea-hooks">💬 フック例: ${idea.hook}</div>
+      </div>
+    </div>
+  `).join('');
+
+  const affiliateHTML = data.affiliateOpportunities.map(a => `
+    <div class="affili-card">
+      <div class="affili-icon">${a.icon}</div>
+      <div class="affili-name">${a.name}</div>
+      <div class="affili-desc">${a.description}</div>
+      <div class="affili-earning">💰 ${a.earning}</div>
+    </div>
+  `).join('');
+
+  results.innerHTML = `
+    <div class="results-header">
+      <span class="results-title">ANALYSIS COMPLETE</span>
+      <span class="keyword-badge">#${keyword}</span>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-value">${data.overview.hotScore}</div>
+        <div class="stat-label">バズスコア</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">${data.overview.avgViews}</div>
+        <div class="stat-label">平均再生数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">${data.overview.engagementRate}</div>
+        <div class="stat-label">エンゲージメント</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="font-size:18px; color: var(--accent);">${data.overview.trendDirection}</div>
+        <div class="stat-label">トレンド</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">バズハッシュタグ</div>
+      <div class="hashtag-grid">${hashtagsHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">バズりやすいコンテンツ企画</div>
+      <div class="idea-list">${ideasHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">アフィリエイト案件チャンス</div>
+      <div class="affili-grid">${affiliateHTML}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">AIが生成したサンプル台本</div>
+      <div class="script-label">🎬 フック（冒頭0〜3秒）</div>
+      <div class="script-box">${data.sampleScript.hook}</div>
+      <div class="script-label">📝 本編</div>
+      <div class="script-box">${data.sampleScript.body}</div>
+      <div class="script-label">📣 CTA（締め）</div>
+      <div class="script-box">${data.sampleScript.cta}</div>
+    </div>
+  `;
+
+  results.classList.add('active');
+  results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('keyword').addEventListener('keydown', e => {
+    if (e.key === 'Enter') analyze();
+  });
+  loadTodayTags();
+});
+</script>
+</body>
+</html>
